@@ -92,6 +92,50 @@
             background: #ff739e;
         }
 
+        .filter-box {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .filter-box .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .filter-btn {
+            padding: 12px 16px;
+            background: #67c28e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: #59b07d;
+        }
+
+        .reset-btn {
+            padding: 12px 16px;
+            background: #909399;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .reset-btn:hover {
+            background: #7a7d82;
+        }
+
         .stat {
             text-align: center;
             color: #888;
@@ -118,7 +162,7 @@
         .record-content {
             font-size: 15px;
             color: #444;
-            line-height: 1.5;
+            line-height: 1.8;
         }
 
         .record-btns {
@@ -147,6 +191,7 @@
 
 <body>
     <div class="container">
+        <!-- 记录表单卡片 -->
         <div class="card">
             <h2 class="title">🍼 宝宝辅食记录</h2>
             <p class="subtitle">轻松记录每一天的成长</p>
@@ -158,8 +203,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>⏰ 喂养时间</label>
+                    <input type="time" id="time" required>
+                </div>
+
+                <div class="form-group">
                     <label>🥣 辅食内容</label>
                     <input type="text" id="food" placeholder="例：南瓜泥、高铁米粉、蛋黄羹" required>
+                </div>
+
+                <div class="form-group">
+                    <label>🍽️ 喂养份量</label>
+                    <input type="text" id="amount" placeholder="例：50g、半碗、1小袋" required>
                 </div>
 
                 <div class="form-group">
@@ -173,35 +228,77 @@
             <div class="stat" id="stat">共 0 条记录</div>
         </div>
 
-        <div id="recordList"></div>
+        <!-- 日期筛选+记录列表 -->
+        <div class="card">
+            <h3 style="color: #666; margin-bottom: 16px; font-size: 18px;">📖 辅食记录列表</h3>
+            <!-- 筛选栏 -->
+            <div class="filter-box">
+                <div class="form-group">
+                    <label>筛选日期</label>
+                    <input type="date" id="filterDate">
+                </div>
+                <button class="filter-btn" onclick="filterByDate()">🔍 筛选</button>
+                <button class="reset-btn" onclick="renderAll()">♻️ 重置</button>
+            </div>
+
+            <!-- 记录列表 -->
+            <div id="recordList"></div>
+        </div>
     </div>
 
     <script>
         const STORAGE_KEY = 'babyFoodRecords';
+        // 页面加载时默认渲染所有记录
+        window.onload = renderAll;
 
+        // 从本地存储获取所有记录
         function getRecords() {
             return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         }
 
+        // 保存记录到本地存储
         function saveRecords(records) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
         }
 
-        function render() {
-            const list = document.getElementById('recordList');
+        // 渲染所有记录
+        function renderAll() {
             const records = getRecords();
-            document.getElementById('stat').innerText = `共 ${records.length} 条记录`;
+            render(records);
+        }
 
+        // 按日期筛选记录
+        function filterByDate() {
+            const filterVal = document.getElementById('filterDate').value;
+            if (!filterVal) {
+                alert('请选择要筛选的日期！');
+                return;
+            }
+            const allRecords = getRecords();
+            // 筛选出日期匹配的记录
+            const filterRecords = allRecords.filter(item => item.date === filterVal);
+            render(filterRecords);
+        }
+
+        // 核心渲染函数（接收记录数组，渲染到页面）
+        function render(records) {
+            const list = document.getElementById('recordList');
+            // 更新统计数
+            document.getElementById('stat').innerText = `共 ${getRecords().length} 条记录`;
+
+            // 无记录时显示提示
             if (records.length === 0) {
                 list.innerHTML = '<div class="empty">暂无辅食记录</div>';
                 return;
             }
 
+            // 渲染每条记录
             list.innerHTML = records.map((item, index) => `
                 <div class="record-item">
-                    <div class="record-date">${item.date}</div>
+                    <div class="record-date">${item.date} ${item.time}</div>
                     <div class="record-content">
                         <strong>🥣 辅食：</strong>${item.food}<br>
+                        <strong>🍽️ 份量：</strong>${item.amount}<br>
                         <strong>😋 反馈：</strong>${item.feedback || '无'}
                     </div>
                     <div class="record-btns">
@@ -211,28 +308,39 @@
             `).join('');
         }
 
+        // 删除单条记录
         function del(index) {
-            const list = getRecords();
-            list.splice(index, 1);
-            saveRecords(list);
-            render();
+            if (confirm('确定要删除这条记录吗？删除后无法恢复！')) {
+                const list = getRecords();
+                list.splice(index, 1);
+                saveRecords(list);
+                // 删除后重新渲染当前筛选状态的记录
+                const filterVal = document.getElementById('filterDate').value;
+                filterVal ? filterByDate() : renderAll();
+            }
         }
 
+        // 提交表单保存新记录
         document.getElementById('foodForm').addEventListener('submit', function (e) {
             e.preventDefault();
+            // 获取表单值
             const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
             const food = document.getElementById('food').value;
+            const amount = document.getElementById('amount').value;
             const feedback = document.getElementById('feedback').value;
 
+            // 新增记录并保存
             const records = getRecords();
-            records.unshift({ date, food, feedback });
+            records.unshift({ date, time, food, amount, feedback });
             saveRecords(records);
 
+            // 清空表单+重新渲染所有记录
             this.reset();
-            render();
+            renderAll();
+            // 筛选框也清空
+            document.getElementById('filterDate').value = '';
         });
-
-        render();
     </script>
 </body>
 </html>
