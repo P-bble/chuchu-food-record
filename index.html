@@ -9,145 +9,230 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft Yahei", sans-serif;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
         }
+
         body {
-            background-color: #f0f8ff;
+            background-color: #f9fafc;
             padding: 20px;
         }
+
         .container {
             max-width: 600px;
             margin: 0 auto;
+        }
+
+        .card {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #4682b4;
+            border-radius: 16px;
+            padding: 24px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-        .form-group {
-            margin-bottom: 15px;
+
+        .title {
+            text-align: center;
+            color: #ff8fab;
+            font-size: 24px;
+            margin-bottom: 8px;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4682b4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #5a9bd5;
-        }
-        .record-list {
-            margin-top: 30px;
-        }
-        .record-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        .record-date {
-            color: #4682b4;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .record-content {
-            color: #666;
-        }
-        .empty-tip {
+
+        .subtitle {
             text-align: center;
             color: #999;
-            padding: 20px;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #ff8fab;
+        }
+
+        textarea {
+            resize: none;
+            min-height: 80px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #ff8fab;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: #ff739e;
+        }
+
+        .stat {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .record-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        .record-date {
+            font-size: 13px;
+            color: #ff8fab;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .record-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .record-btns {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .del-btn {
+            padding: 6px 10px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .empty {
+            text-align: center;
+            color: #ccc;
+            padding: 40px 0;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>宝宝辅食记录</h1>
-        <form id="foodForm">
-            <div class="form-group">
-                <label for="date">日期</label>
-                <input type="date" id="date" required>
-            </div>
-            <div class="form-group">
-                <label for="food">辅食食材</label>
-                <input type="text" id="food" placeholder="比如：南瓜泥、高铁米粉" required>
-            </div>
-            <div class="form-group">
-                <label for="feedback">宝宝反馈</label>
-                <textarea id="feedback" rows="3" placeholder="比如：爱吃、有点过敏、吃完哭闹"></textarea>
-            </div>
-            <button type="submit">保存记录</button>
-        </form>
+        <div class="card">
+            <h2 class="title">🍼 宝宝辅食记录</h2>
+            <p class="subtitle">轻松记录每一天的成长</p>
 
-        <div class="record-list" id="recordList">
-            <!-- 记录会动态渲染在这里 -->
+            <form id="foodForm">
+                <div class="form-group">
+                    <label>📅 日期</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>🥣 辅食内容</label>
+                    <input type="text" id="food" placeholder="例：南瓜泥、高铁米粉、蛋黄羹" required>
+                </div>
+
+                <div class="form-group">
+                    <label>😋 宝宝反馈</label>
+                    <textarea id="feedback" placeholder="例：爱吃、不过敏、有点不喜欢"></textarea>
+                </div>
+
+                <button class="btn" type="submit">💾 保存记录</button>
+            </form>
+
+            <div class="stat" id="stat">共 0 条记录</div>
         </div>
+
+        <div id="recordList"></div>
     </div>
 
     <script>
-        // 初始化：从本地存储加载记录
-        function loadRecords() {
-            const records = JSON.parse(localStorage.getItem('babyFoodRecords')) || [];
-            renderRecords(records);
+        const STORAGE_KEY = 'babyFoodRecords';
+
+        function getRecords() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         }
 
-        // 渲染记录列表
-        function renderRecords(records) {
-            const listEl = document.getElementById('recordList');
+        function saveRecords(records) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        }
+
+        function render() {
+            const list = document.getElementById('recordList');
+            const records = getRecords();
+            document.getElementById('stat').innerText = `共 ${records.length} 条记录`;
+
             if (records.length === 0) {
-                listEl.innerHTML = '<div class="empty-tip">暂无辅食记录</div>';
+                list.innerHTML = '<div class="empty">暂无辅食记录</div>';
                 return;
             }
 
-            listEl.innerHTML = records.map(record => `
+            list.innerHTML = records.map((item, index) => `
                 <div class="record-item">
-                    <div class="record-date">${record.date}</div>
+                    <div class="record-date">${item.date}</div>
                     <div class="record-content">
-                        <strong>食材：</strong>${record.food}<br>
-                        <strong>反馈：</strong>${record.feedback || '无'}
+                        <strong>🥣 辅食：</strong>${item.food}<br>
+                        <strong>😋 反馈：</strong>${item.feedback || '无'}
+                    </div>
+                    <div class="record-btns">
+                        <button class="del-btn" onclick="del(${index})">🗑️ 删除</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // 提交表单保存记录
-        document.getElementById('foodForm').addEventListener('submit', function(e) {
+        function del(index) {
+            const list = getRecords();
+            list.splice(index, 1);
+            saveRecords(list);
+            render();
+        }
+
+        document.getElementById('foodForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const date = document.getElementById('date').value;
             const food = document.getElementById('food').value;
             const feedback = document.getElementById('feedback').value;
 
-            const newRecord = { date, food, feedback };
-            const records = JSON.parse(localStorage.getItem('babyFoodRecords')) || [];
-            records.unshift(newRecord); // 新记录放在最前面
-            localStorage.setItem('babyFoodRecords', JSON.stringify(records));
+            const records = getRecords();
+            records.unshift({ date, food, feedback });
+            saveRecords(records);
 
-            // 清空表单并刷新列表
             this.reset();
-            renderRecords(records);
+            render();
         });
 
-        // 页面加载时就显示已有记录
-        loadRecords();
+        render();
     </script>
 </body>
 </html>
