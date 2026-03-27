@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宝宝辅食记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #4682b4;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4682b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #5a9bd5;
+        }
+        .record-list {
+            margin-top: 30px;
+        }
+        .record-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .record-date {
+            color: #4682b4;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .record-content {
+            color: #666;
+        }
+        .empty-tip {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>宝宝辅食记录</h1>
+        <form id="foodForm">
+            <div class="form-group">
+                <label for="date">日期</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label for="food">辅食食材</label>
+                <input type="text" id="food" placeholder="比如：南瓜泥、高铁米粉" required>
+            </div>
+            <div class="form-group">
+                <label for="feedback">宝宝反馈</label>
+                <textarea id="feedback" rows="3" placeholder="比如：爱吃、有点过敏、吃完哭闹"></textarea>
+            </div>
+            <button type="submit">保存记录</button>
+        </form>
+
+        <div class="record-list" id="recordList">
+            <!-- 记录会动态渲染在这里 -->
+        </div>
+    </div>
+
+    <script>
+        // 初始化：从本地存储加载记录
+        function loadRecords() {
+            const records = JSON.parse(localStorage.getItem('babyFoodRecords')) || [];
+            renderRecords(records);
+        }
+
+        // 渲染记录列表
+        function renderRecords(records) {
+            const listEl = document.getElementById('recordList');
+            if (records.length === 0) {
+                listEl.innerHTML = '<div class="empty-tip">暂无辅食记录</div>';
+                return;
+            }
+
+            listEl.innerHTML = records.map(record => `
+                <div class="record-item">
+                    <div class="record-date">${record.date}</div>
+                    <div class="record-content">
+                        <strong>食材：</strong>${record.food}<br>
+                        <strong>反馈：</strong>${record.feedback || '无'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 提交表单保存记录
+        document.getElementById('foodForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const date = document.getElementById('date').value;
+            const food = document.getElementById('food').value;
+            const feedback = document.getElementById('feedback').value;
+
+            const newRecord = { date, food, feedback };
+            const records = JSON.parse(localStorage.getItem('babyFoodRecords')) || [];
+            records.unshift(newRecord); // 新记录放在最前面
+            localStorage.setItem('babyFoodRecords', JSON.stringify(records));
+
+            // 清空表单并刷新列表
+            this.reset();
+            renderRecords(records);
+        });
+
+        // 页面加载时就显示已有记录
+        loadRecords();
+    </script>
+</body>
+</html>
