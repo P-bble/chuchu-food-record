@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宝宝辅食记录</title>
+    <title>宝宝辅食打怪升级记</title>
     <style>
         /* 全局变量：白天/夜间配色 */
         :root.light-mode {
@@ -14,10 +14,11 @@
             --text-light: #999999;
             --primary: #ff8fab;
             --primary-light: #ffb3c6;
-            --primary-gradient: linear-gradient(135deg, #ff8fab, #ff739e);
+            --success: #67c28e;
+            --danger: #ff6b6b;
             --success-gradient: linear-gradient(135deg, #67c28e, #59b07d);
-            --gray-gradient: linear-gradient(135deg, #909399, #7a7d82);
             --danger-gradient: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            --gray-gradient: linear-gradient(135deg, #909399, #7a7d82);
             --border: #eeeeee;
             --border-dashed: #f0f0f0;
             --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.06);
@@ -28,6 +29,8 @@
             --shadow-item-hover: 0 6px 24px rgba(0, 0, 0, 0.08);
             --focus-shadow: 0 0 0 4px rgba(255, 143, 171, 0.1);
             --empty-text: #cccccc;
+            --unlock-bg: rgba(255, 223, 0, 0.1);
+            --unlock-border: #ffd700;
         }
         :root.dark-mode {
             --bg-main: linear-gradient(135deg, #1f2125 0%, #121417 100%);
@@ -37,10 +40,11 @@
             --text-light: #909399;
             --primary: #ff9eb5;
             --primary-light: #ffc1d1;
-            --primary-gradient: linear-gradient(135deg, #ff9eb5, #ff83a8);
+            --success: #72d392;
+            --danger: #ff7a7a;
             --success-gradient: linear-gradient(135deg, #72d392, #64c282);
-            --gray-gradient: linear-gradient(135deg, #a8abb2, #909399);
             --danger-gradient: linear-gradient(135deg, #ff7a7a, #f56565);
+            --gray-gradient: linear-gradient(135deg, #a8abb2, #909399);
             --border: #38393d;
             --border-dashed: #303134;
             --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -51,6 +55,8 @@
             --shadow-item-hover: 0 6px 24px rgba(0, 0, 0, 0.3);
             --focus-shadow: 0 0 0 4px rgba(255, 143, 171, 0.2);
             --empty-text: #444649;
+            --unlock-bg: rgba(255, 223, 0, 0.2);
+            --unlock-border: #ffd700;
         }
 
         * {
@@ -65,6 +71,7 @@
             background: var(--bg-main);
             padding: 20px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
@@ -95,6 +102,88 @@
         .mode-switch:hover {
             transform: scale(1.1);
             box-shadow: var(--shadow-item-hover);
+        }
+
+        /* 解锁弹窗遮罩 */
+        .unlock-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .unlock-mask.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* 解锁弹窗主体 */
+        .unlock-popup {
+            width: 90%;
+            max-width: 400px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 3px solid var(--unlock-border);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: popupScale 0.5s ease-out;
+        }
+        @keyframes popupScale {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 卡通食物动画 */
+        .food-ani {
+            font-size: 80px;
+            margin: 10px 0;
+            animation: foodJump 1s ease-in-out infinite, foodRotate 3s linear infinite;
+        }
+        @keyframes foodJump {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes foodRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .unlock-title {
+            font-size: 24px;
+            color: var(--unlock-border);
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .unlock-desc {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .unlock-btn {
+            padding: 12px 30px;
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(103, 194, 142, 0.3);
+        }
+        .unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(103, 194, 142, 0.4);
         }
 
         /* 通用动画 */
@@ -150,6 +239,59 @@
             margin-bottom: 16px;
             font-size: 18px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .unlock-tag {
+            background: var(--unlock-bg);
+            color: var(--unlock-border);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--unlock-border);
+        }
+
+        /* 反馈标记样式 */
+        .feedback-radio {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .radio-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radio-item.checked .radio-btn {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        .radio-item.danger.checked .radio-btn {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+        .radio-btn i {
+            color: white;
+            font-size: 12px;
+            display: none;
+        }
+        .radio-item.checked .radio-btn i {
+            display: block;
+        }
+        .radio-text {
+            color: var(--text-secondary);
+            font-size: 15px;
         }
 
         /* 表单样式 */
@@ -189,7 +331,7 @@
         .btn {
             width: 100%;
             padding: 14px;
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
             border-radius: 14px;
@@ -275,6 +417,35 @@
             box-shadow: var(--shadow-item);
             animation: slideIn 0.4s ease-out;
             border: 1px solid var(--border);
+            position: relative;
+        }
+        /* 记录项反馈标记 */
+        .record-tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .tag-good {
+            background: rgba(103, 194, 142, 0.2);
+            color: var(--success);
+        }
+        .tag-bad {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--danger);
+        }
+        .record-item.unlocked {
+            border-color: var(--unlock-border);
+            background: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), var(--unlock-bg);
+        }
+        .dark-mode .record-item.unlocked {
+            background: linear-gradient(rgba(39,41,45,0.95), rgba(39,41,45,0.95)), var(--unlock-bg);
         }
         .record-item:hover {
             transform: translateX(4px);
@@ -285,10 +456,19 @@
             color: var(--primary);
             font-weight: bold;
             margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .record-food {
+            font-size: 16px;
+            color: var(--text-main);
+            font-weight: 500;
+            margin: 6px 0;
         }
         .record-content {
-            font-size: 15px;
-            color: var(--text-main);
+            font-size: 14px;
+            color: var(--text-secondary);
             line-height: 1.8;
         }
         .record-btns {
@@ -302,6 +482,27 @@
             padding: 40px 0;
             animation: fadeIn 0.6s ease-out;
         }
+
+        /* 解锁食物列表 */
+        .unlock-list {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .unlock-food {
+            background: var(--unlock-bg);
+            border: 1px solid var(--unlock-border);
+            color: var(--unlock-border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 
@@ -309,11 +510,21 @@
     <!-- 日夜模式切换按钮 -->
     <button class="mode-switch" id="modeSwitch">🌙</button>
 
+    <!-- 解锁新食物弹窗 -->
+    <div class="unlock-mask" id="unlockMask">
+        <div class="unlock-popup">
+            <div class="food-ani" id="foodAni">🥕</div>
+            <div class="unlock-title">🎉 解锁新食物啦！</div>
+            <div class="unlock-desc" id="unlockDesc">宝宝连续3天爱吃【南瓜泥】，成功解锁新辅食，继续打怪升级吧！</div>
+            <button class="unlock-btn" id="unlockBtn">太棒啦 ✨</button>
+        </div>
+    </div>
+
     <div class="container">
-        <!-- 记录表单卡片 -->
+        <!-- 记录表单卡片（打怪升级版） -->
         <div class="card">
-            <h2 class="title">🍼 宝宝辅食记录</h2>
-            <p class="subtitle">轻松记录每一天的成长</p>
+            <h2 class="title">🍼 宝宝辅食打怪升级记</h2>
+            <p class="subtitle">记录反馈攒好评，解锁新食物～</p>
 
             <form id="foodForm">
                 <div class="form-group">
@@ -337,19 +548,34 @@
                 </div>
 
                 <div class="form-group">
-                    <label>😋 宝宝反馈</label>
+                    <label>😋 宝宝反馈 <span style="font-size:12px; color:var(--text-light);">(必填)</span></label>
                     <textarea id="feedback" placeholder="例：爱吃、不过敏、有点不喜欢"></textarea>
+                    <!-- 反馈好坏单选框 -->
+                    <div class="feedback-radio">
+                        <div class="radio-item" data-type="good" onclick="selectFeedback(this)">
+                            <div class="radio-btn"><i>✓</i></div>
+                            <div class="radio-text">爱吃（好评）</div>
+                        </div>
+                        <div class="radio-item danger" data-type="bad" onclick="selectFeedback(this)">
+                            <div class="radio-btn"><i>×</i></div>
+                            <div class="radio-text">不爱吃（差评）</div>
+                        </div>
+                    </div>
                 </div>
 
                 <button class="btn" type="submit">💾 保存记录</button>
             </form>
 
-            <div class="stat" id="stat">共 0 条记录</div>
+            <div class="stat" id="stat">共 0 条记录 | 已解锁 <span id="unlockCount">0</span> 种食物</div>
+            <!-- 已解锁食物列表 -->
+            <div class="unlock-list" id="unlockList">
+                <span style="color:var(--text-light); font-size:13px;">暂无解锁食物，快攒好评吧～</span>
+            </div>
         </div>
 
         <!-- 日期筛选+记录列表 -->
         <div class="card">
-            <h3 class="list-title">📖 辅食记录列表</h3>
+            <h3 class="list-title">📖 辅食闯关记录 <span class="unlock-tag" id="unlockTag">解锁0种</span></h3>
             <div class="filter-box">
                 <div class="form-group">
                     <label>筛选日期</label>
@@ -363,40 +589,118 @@
     </div>
 
     <script>
+        // 本地存储key
         const STORAGE_KEY = 'babyFoodRecords';
         const MODE_KEY = 'babyFoodRecordMode';
+        const UNLOCK_KEY = 'unlockedFoods';
+        const PRAISE_KEY = 'foodPraiseCount';
+        // 元素获取
         const modeSwitch = document.getElementById('modeSwitch');
         const html = document.documentElement;
+        const unlockMask = document.getElementById('unlockMask');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const foodAni = document.getElementById('foodAni');
+        const unlockDesc = document.getElementById('unlockDesc');
+        const unlockCount = document.getElementById('unlockCount');
+        const unlockList = document.getElementById('unlockList');
+        const unlockTag = document.getElementById('unlockTag');
+        let feedbackType = ''; // 反馈类型：good/bad
 
-        // 页面加载：恢复保存的模式+渲染记录
+        // 卡通食物表情库（解锁时随机显示）
+        const foodIcons = ['🥕', '🍠', '🥔', '🥚', '🍌', '🍎', '🥑', '🌽', '🍚', '🥛'];
+        // 页面加载：恢复模式+渲染记录+加载解锁数据
         window.onload = function() {
             const savedMode = localStorage.getItem(MODE_KEY) || 'light-mode';
             setMode(savedMode);
             renderAll();
+            renderUnlockedFoods();
+            // 默认选中当天日期
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
         };
 
-        // 日夜模式切换逻辑
+        // 日夜模式切换
         modeSwitch.addEventListener('click', function() {
             const currentMode = html.className;
             const newMode = currentMode === 'light-mode' ? 'dark-mode' : 'light-mode';
             setMode(newMode);
-            // 保存模式到本地
             localStorage.setItem(MODE_KEY, newMode);
         });
-
-        // 设置模式样式+按钮图标
         function setMode(mode) {
             html.className = mode;
             modeSwitch.innerHTML = mode === 'light-mode' ? '🌙' : '☀️';
         }
 
-        // 本地存储操作
-        function getRecords() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        // 反馈标记选择
+        function selectFeedback(el) {
+            // 清除所有选中状态
+            document.querySelectorAll('.radio-item').forEach(item => item.classList.remove('checked'));
+            // 添加当前选中状态
+            el.classList.add('checked');
+            feedbackType = el.dataset.type;
         }
-        function saveRecords(records) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+
+        // 本地存储操作：记录/好评数/解锁食物
+        function getRecords() { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        function saveRecords(records) { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+        function getPraiseCount() { return JSON.parse(localStorage.getItem(PRAISE_KEY)) || {}; }
+        function savePraiseCount(obj) { localStorage.setItem(PRAISE_KEY, JSON.stringify(obj)); }
+        function getUnlockedFoods() { return JSON.parse(localStorage.getItem(UNLOCK_KEY)) || []; }
+        function saveUnlockedFoods(arr) { localStorage.setItem(UNLOCK_KEY, JSON.stringify(arr)); }
+
+        // 渲染已解锁食物列表
+        function renderUnlockedFoods() {
+            const unlocked = getUnlockedFoods();
+            unlockCount.innerText = unlocked.length;
+            unlockTag.innerText = `解锁${unlocked.length}种`;
+            if (unlocked.length === 0) {
+                unlockList.innerHTML = '<span style="color:var(--text-light); font-size:13px;">暂无解锁食物，快攒好评吧～</span>';
+                return;
+            }
+            unlockList.innerHTML = unlocked.map(food => `
+                <div class="unlock-food">${foodIcons[Math.floor(Math.random() * foodIcons.length)]} ${food}</div>
+            `).join('');
         }
+
+        // 检查连续好评：判断是否连续3天好评，触发解锁
+        function checkPraise(foodName) {
+            let praiseObj = getPraiseCount();
+            // 初始化食物好评数
+            if (!praiseObj[foodName]) praiseObj[foodName] = 0;
+            // 好评+1，差评重置为0
+            praiseObj[foodName] = feedbackType === 'good' ? praiseObj[foodName] + 1 : 0;
+            savePraiseCount(praiseObj);
+
+            // 连续3天好评，触发解锁
+            if (praiseObj[foodName] === 3) {
+                const unlocked = getUnlockedFoods();
+                // 未解锁过才弹窗
+                if (!unlocked.includes(foodName)) {
+                    unlocked.push(foodName);
+                    saveUnlockedFoods(unlocked);
+                    // 显示解锁弹窗
+                    showUnlockPopup(foodName);
+                }
+                // 解锁后重置该食物好评数
+                praiseObj[foodName] = 0;
+                savePraiseCount(praiseObj);
+            }
+        }
+
+        // 显示解锁新食物弹窗（卡通动画+文字）
+        function showUnlockPopup(foodName) {
+            // 随机卡通食物表情
+            const randomIcon = foodIcons[Math.floor(Math.random() * foodIcons.length)];
+            foodAni.innerText = randomIcon;
+            unlockDesc.innerText = `宝宝连续3天爱吃【${foodName}】，成功解锁新辅食，继续打怪升级吧！`;
+            unlockMask.classList.add('show');
+        }
+        // 关闭解锁弹窗
+        unlockBtn.addEventListener('click', function() {
+            unlockMask.classList.remove('show');
+            renderUnlockedFoods();
+            renderAll();
+        });
 
         // 渲染所有记录
         function renderAll() {
@@ -404,7 +708,7 @@
             render(records);
         }
 
-        // 按日期筛选
+        // 按日期筛选记录
         function filterByDate() {
             const filterVal = document.getElementById('filterDate').value;
             if (!filterVal) {
@@ -416,27 +720,36 @@
             render(filterRecords);
         }
 
-        // 核心渲染：带动画延迟，每条记录依次入场
+        // 核心渲染函数
         function render(records) {
             const list = document.getElementById('recordList');
             const total = getRecords().length;
             animateStat(total);
 
             if (records.length === 0) {
-                list.innerHTML = '<div class="empty">暂无辅食记录</div>';
+                list.innerHTML = '<div class="empty">暂无辅食闯关记录，快来添加吧～</div>';
                 return;
             }
 
+            const unlocked = getUnlockedFoods();
             list.innerHTML = records.map((item, index) => `
-                <div class="record-item" style="animation-delay: ${index * 0.1}s">
-                    <div class="record-date">${item.date} ${item.time}</div>
+                <div class="record-item ${unlocked.includes(item.food) ? 'unlocked' : ''}" style="animation-delay: ${index * 0.1}s">
+                    <!-- 反馈标记 -->
+                    <div class="record-tag ${item.feedbackType === 'good' ? 'tag-good' : 'tag-bad'}">
+                        ${item.feedbackType === 'good' ? '✓' : '×'}
+                    </div>
+                    <div class="record-date">
+                        ${item.date} ${item.time}
+                        ${unlocked.includes(item.food) ? '<span style="color:var(--unlock-border); font-size:12px;">[已解锁]</span>' : ''}
+                    </div>
+                    <div class="record-food">${foodIcons[Math.floor(Math.random() * foodIcons.length)]} ${item.food}</div>
                     <div class="record-content">
-                        <strong>🥣 辅食：</strong>${item.food}<br>
-                        <strong>🍽️ 份量：</strong>${item.amount}<br>
-                        <strong>😋 反馈：</strong>${item.feedback || '无'}
+                        <strong>份量：</strong>${item.amount}<br>
+                        <strong>反馈：</strong>${item.feedback || '无'}<br>
+                        <strong>评价：</strong>${item.feedbackType === 'good' ? '👍 爱吃' : '👎 不爱吃'}
                     </div>
                     <div class="record-btns">
-                        <button class="del-btn" onclick="del(${index})">🗑️ 删除</button>
+                        <button class="del-btn" onclick="del(${index})">🗑️ 删除记录</button>
                     </div>
                 </div>
             `).join('');
@@ -445,44 +758,66 @@
         // 统计数字跳动动画
         function animateStat(target) {
             const el = document.getElementById('stat');
-            const current = parseInt(el.innerText.match(/\d+/)[0] || 0);
+            const current = parseInt(el.innerText.match(/共 (\d+) 条/)[1] || 0);
             if (current === target) return;
             let start = current;
             const step = target > current ? 1 : -1;
             const timer = setInterval(() => {
                 start += step;
-                el.innerText = `共 ${start} 条记录`;
+                el.innerHTML = `共 ${start} 条记录 | 已解锁 <span id="unlockCount">${getUnlockedFoods().length}</span> 种食物`;
                 if (start === target) clearInterval(timer);
             }, 50);
         }
 
-        // 删除记录（带确认+保留筛选状态）
+        // 删除记录
         function del(index) {
-            if (confirm('确定要删除这条记录吗？删除后无法恢复！')) {
+            if (confirm('确定要删除这条闯关记录吗？删除后无法恢复！')) {
                 const list = getRecords();
+                // 删除后同步更新好评数（可选：删除记录不重置好评，如需重置可取消注释）
+                // const delFood = list[index].food;
+                // let praiseObj = getPraiseCount();
+                // if (praiseObj[delFood]) delete praiseObj[delFood];
+                // savePraiseCount(praiseObj);
+                
                 list.splice(index, 1);
                 saveRecords(list);
                 const filterVal = document.getElementById('filterDate').value;
                 filterVal ? filterByDate() : renderAll();
+                renderUnlockedFoods();
             }
         }
 
-        // 保存新记录
+        // 保存新记录（核心：添加反馈类型+检查好评解锁）
         document.getElementById('foodForm').addEventListener('submit', function (e) {
             e.preventDefault();
+            // 校验反馈类型是否选择
+            if (!feedbackType) {
+                alert('请选择宝宝是否爱吃这款辅食～');
+                return;
+            }
+            // 获取表单值
             const date = document.getElementById('date').value;
             const time = document.getElementById('time').value;
-            const food = document.getElementById('food').value;
+            const food = document.getElementById('food').value.trim();
             const amount = document.getElementById('amount').value;
-            const feedback = document.getElementById('feedback').value;
+            const feedback = document.getElementById('feedback').value.trim();
 
+            // 新增记录
             const records = getRecords();
-            records.unshift({ date, time, food, amount, feedback });
+            records.unshift({ date, time, food, amount, feedback, feedbackType });
             saveRecords(records);
 
+            // 检查是否达成连续3天好评，触发解锁
+            checkPraise(food);
+
+            // 清空表单+反馈选择
             this.reset();
-            renderAll();
+            document.querySelectorAll('.radio-item').forEach(item => item.classList.remove('checked'));
+            feedbackType = '';
+            // 重置筛选+重新渲染
             document.getElementById('filterDate').value = '';
+            renderAll();
+            renderUnlockedFoods();
         });
     </script>
 </body>
