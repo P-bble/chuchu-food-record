@@ -1,7 +1,6 @@
 const AI_CONFIG = {
-  apiKey: "在这里粘贴你在火山引擎拿到的 API Key",
-  apiUrl: "https://ark.cn-beijing.volcesapi.com/api/v3/chat/completions",
-  model: "doubao-lite-4k-240516"
+  // 这里走我们自己的代理接口，不会跨域
+  apiUrl: "/api/ai"
 };
 
 const FOOD_CATEGORIES = [
@@ -12,7 +11,7 @@ function getPrompt(age, category) {
   return `
 你是专业宝宝辅食营养师，推荐1款适合${age}宝宝的辅食，
 分类要求：${category}。
-必须严格按以下格式输出，不要多余内容：
+严格按以下格式输出，不要多余内容：
 
 辅食名称：
 食材：
