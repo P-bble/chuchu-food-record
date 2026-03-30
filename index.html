@@ -25,7 +25,7 @@ input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px soli
 .record-item{padding:16px;border-radius:16px;background:var(--card-bg);border:1px solid var(--border);margin-bottom:12px}
 .del-btn{margin-top:8px;padding:6px 10px;background:var(--sad);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer}
 .empty{text-align:center;padding:40px;color:var(--text-secondary)}
-#recommendResult{margin-top:20px;padding:20px;border-radius:12px;background:rgba(255,143,171,.05);line-height:1.8}
+#recommendResult{margin-top:20px;padding:20px;border-radius:12px;background:rgba(255,143,171,.05);line-height:1.8;white-space:pre-wrap}
 .share-btn{background:#4285f4;color:#fff;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;cursor:pointer}
 .collect-btn{background:var(--happy);color:#fff;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;cursor:pointer}
 .filter-box{padding:16px;border-radius:12px;background:rgba(255,143,171,.05);margin-bottom:20px}
@@ -81,7 +81,7 @@ input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px soli
       <select id="cate"></select>
     </div>
     <button class="save-btn" onclick="getAI()">获取推荐+视频</button>
-    <div id="recommendResult" style="white-space:pre-wrap"></div>
+    <div id="recommendResult"></div>
     <button class="share-btn" onclick="share()">📤 复制分享食谱</button>
     <button class="collect-btn" onclick="collect()">❤️ 收藏食谱</button>
   </div>
@@ -219,18 +219,16 @@ async function getAI(){
   const box = document.getElementById("recommendResult");
   box.innerText = "正在生成辅食+视频推荐...";
   try{
-    const r = await fetch(AI_CONFIG.apiUrl,{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":`Bearer ${AI_CONFIG.apiKey}`},
-      body:JSON.stringify({
-        model:AI_CONFIG.model,
-        messages:[{role:"user",content:getPrompt(age,cate)}]
-      })
+    const prompt = getPrompt(age,cate);
+    const resp = await fetch(AI_CONFIG.apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
     });
-    const d = await r.json();
-    box.innerText = d.choices[0].message.content;
+    const data = await resp.json();
+    box.innerText = data.result || "调用失败";
   }catch(e){
-    box.innerText = "推荐失败，请检查API";
+    box.innerText = "请求出错：" + e.toString();
   }
 }
 
