@@ -1,7 +1,5 @@
 {
-  "functions": {
-    "api/ai.js": {
-      "runtime": "@vercel/node@3"
-    }
-  }
+  "buildCommand": false,
+  "outputDirectory": ".",
+  "devCommand": false
 }
